@@ -1,4 +1,4 @@
-# Python Starter
+# Tom's Geoms 2D
 
 ![workflow](https://github.com/tomsilver/toms-geoms-2d/actions/workflows/ci.yml/badge.svg)
 
