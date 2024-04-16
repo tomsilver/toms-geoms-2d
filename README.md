@@ -2,7 +2,7 @@
 
 ![workflow](https://github.com/tomsilver/toms-geoms-2d/actions/workflows/ci.yml/badge.svg)
 
-Some 2D geometry utilities. If you are considering this library or another library, use the other one.
+Some 2D geometry utilities. If you are considering using this library or another library, use the other one.
 
 Derived from [predicators](https://github.com/Learning-and-Intelligent-Systems/predicators).
 
