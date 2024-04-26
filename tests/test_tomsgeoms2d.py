@@ -226,6 +226,25 @@ def test_rectangle():
     # Uncomment for debugging.
     # plt.savefig("/tmp/rectangle_unit_test.png")
 
+    # Tests scale_about_center().
+    _, ax = plt.subplots(1, 1, figsize=(10, 10))
+    ax.set_xlim((-5, 5))
+    ax.set_ylim((-5, 5))
+
+    rect8 = Rectangle(x=-2, y=-1, width=4, height=3, theta=0)
+    rect8.plot(ax, color="red", alpha=0.5)
+    rect9 = rect8.scale_about_center(width_scale=0.75, height_scale=0.5)
+    assert set(rect9.vertices) == {
+        (-1.5, -0.25),
+        (-1.5, 1.25),
+        (1.5, 1.25),
+        (1.5, -0.25),
+    }
+    rect9.plot(ax, color="blue", alpha=0.5)
+
+    # Uncomment for debugging.
+    # plt.savefig("/tmp/rectangle_unit_test2.png")
+
 
 def test_line_segment_circle_intersection():
     """Tests for line_segment_intersects_circle()."""
