@@ -300,6 +300,15 @@ class Rectangle(Geom2D):
         assert np.allclose(rect.vertices, vertices)
         return rect
 
+    def scale_about_center(self, width_scale: float, height_scale: float) -> Rectangle:
+        """Create a new rectangle that is this rectangle, shrunken or stretched
+        about the center of this rectangle."""
+        new_height = self.height * height_scale
+        new_width = self.width * width_scale
+        return Rectangle.from_center(
+            self.center[0], self.center[1], new_width, new_height, self.theta
+        )
+
     def plot(self, ax: plt.Axes, **kwargs: Any) -> None:
         angle = self.theta * 180 / np.pi
         patch = patches.Rectangle(
