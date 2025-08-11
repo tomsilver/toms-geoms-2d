@@ -408,17 +408,20 @@ class Lobject(Geom2D):
 
     def sample_random_point(self, rng: np.random.Generator) -> Tuple[float, float]:
         # Sample a random point within the bounds of the L-object.
-        while True:
-            # Sample a point in the bounding box.
-            side_length = rng.choice([self.lengths[0], self.lengths[1]])
-            if side_length == self.lengths[0]:
-                x = rng.uniform(self.x - self.lengths[0], self.x)
-                y = rng.uniform(self.y - self.width, self.y)
-            else:
-                x = rng.uniform(self.x - self.width, self.x)
-                y = rng.uniform(self.y - self.lengths[1], self.y)
-            if self.contains_point(x, y):
-                return (x, y)
+
+        side_length = rng.choice([self.lengths[0], self.lengths[1]])
+        if side_length == self.lengths[0]:
+            rx = -rng.uniform(0, self.lengths[0])
+            ry = -rng.uniform(0, self.width)
+        else:
+            rx = -rng.uniform(0, self.width)
+            ry = -rng.uniform(0, self.lengths[1])
+
+        rx, ry = np.array([rx, ry]) @ self.rotation_matrix.T
+        x = rx + self.x
+        y = ry + self.y
+
+        return (x, y)
 
     def rotate_about_point(self, x: float, y: float, rot: float) -> Lobject:
         """Create a new L-object that is this L-object, but rotated CCW by the

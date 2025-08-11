@@ -266,14 +266,28 @@ def test_lobject():
     expected_vertices = np.array(
         [(3, 4), (1, 4), (1, 3.5), (2.5, 3.5), (2.5, 1), (3, 1), (3, 3.5), (2.5, 4)]
     )
-
     np.testing.assert_array_equal(lobject.vertices, expected_vertices)
 
+    # Test rotation about center
     lobject = lobject.rotate_about_point(lobject.x, lobject.y, np.pi / 6)
-
     lobject.plot(ax, color="orange", alpha=0.5)
 
-    # # Uncomment for debugging.
+    # Test rotation about external point
+    lobject = lobject.rotate_about_point(0, 0, np.pi / 6)
+    lobject.plot(ax, color="red", alpha=0.5)
+
+    # Test scaling about center
+    lobject = lobject.scale_about_center(width_scale=0.5, length_scale=0.5)
+    lobject.plot(ax, color="blue", alpha=0.5)
+
+    # Test sample_random_point
+    rng = np.random.default_rng(0)
+    for _ in range(100):
+        p = lobject.sample_random_point(rng)
+        assert lobject.contains_point(p[0], p[1])
+        plt.plot(p[0], p[1], "bo")
+
+    # Uncomment for debugging.
     # plt.savefig("/tmp/lobject_unit_test.png")
 
 
