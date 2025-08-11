@@ -319,36 +319,24 @@ class Rectangle(Geom2D):
 
 @dataclass(frozen=True)
 class Lobject(Geom2D):
-    """A helper class for representing a L-shaped object with width and
-    lengths.
+    """A helper class for representing a L-shaped object for visualizing and
+    collision checking.
 
-    length_side1 and length_side2. This is for visualizing and collision
-    checking.
+    The object is centered at (x,y) with the leg lengths defined as a
+    tuple (length_side1, length_side2).
     """
 
     x: float
     y: float
     width: float
-    lengths: list[float]
-    theta: float  # Rotation angle in radians
+    lengths: tuple[float, float]
+    theta: float  # Rotation angle in radians with respect to (x,y)
 
     def __post_init__(self):
         # Ensure that the lengths are positive
         if any(length <= 0 for length in self.lengths):
             raise ValueError("Lengths must be positive.")
         assert -np.pi <= self.theta <= np.pi, "Expecting angle in [-pi, pi]."
-
-    @staticmethod
-    def from_center(
-        center_x: float,
-        center_y: float,
-        width: float,
-        lengths: list[float],
-        theta: float,
-    ) -> Lobject:
-        """Create a new Lobject from its center, width, lengths, and
-        rotation."""
-        return Lobject(center_x, center_y, width, lengths, theta)
 
     @functools.cached_property
     def rotation_matrix(self) -> NDArray[np.float64]:
@@ -372,36 +360,9 @@ class Lobject(Geom2D):
 
     @functools.cached_property
     def vertices(self) -> List[Tuple[float, float]]:
-        """Get the six vertices of the L-object.
-
-        center (x,y) = 1 dist(2-3) == dist(5-6) == width dist(1-2) ==
-        length_side1 dist(1-6) == length_side2
-        """
-        w, l1, l2 = self.width, self.lengths[0], self.lengths[1]
-        translate_vector = np.array([self.x, self.y])
-        vertices = np.array(
-            [
-                (0, 0),
-                (-l1, 0),
-                (-l1, -w),
-                (-w, -w),
-                (-w, -l2),
-                (0, -l2),
-            ]
-        )
-
-        vertices = vertices @ self.rotation_matrix.T
-        vertices = translate_vector + vertices
-        # Convert to a list of tuples. Slightly complicated to appease both
-        # type checking and linting.
-        return list(map(lambda p: (p[0], p[1]), vertices))
-
-    @functools.cached_property
-    def intermediate_vertices(self) -> List[Tuple[float, float]]:
         """Get the eight vertices of the L-object.
 
-        center (x,y) = 1 dist(2-3) == dist(5-6) == width dist(1-2) ==
-        length_side1 dist(1-6) == length_side2
+        The last two vertices are for plotting convenience.
         """
         w, l1, l2 = self.width, self.lengths[0], self.lengths[1]
         translate_vector = np.array([self.x, self.y])
@@ -437,12 +398,6 @@ class Lobject(Geom2D):
             LineSegment(v[5][0], v[5][1], v[0][0], v[0][1]),
         ]
 
-    @functools.cached_property
-    def center(self) -> Tuple[float, float]:
-        """Get the point at the center of the rectangle."""
-        x, y = np.mean(self.vertices, axis=0)
-        return (x, y)
-
     def contains_point(self, x: float, y: float) -> bool:
         # First invert translation, then invert rotation.
         rx, ry = np.array([x - self.x, y - self.y]) @ self.inverse_rotation_matrix.T
@@ -466,8 +421,8 @@ class Lobject(Geom2D):
                 return (x, y)
 
     def rotate_about_point(self, x: float, y: float, rot: float) -> Lobject:
-        """Create a new rectangle that is this rectangle, but rotated CCW by
-        the given rotation (in radians), relative to the (x, y) origin.
+        """Create a new L-object that is this L-object, but rotated CCW by the
+        given rotation (in radians), relative to the (x, y) origin.
 
         Rotates the vertices first, then uses them to recompute the new
         theta.
@@ -493,18 +448,11 @@ class Lobject(Geom2D):
         length_side1 = np.linalg.norm(vector_side1).item()
         length_side2 = np.linalg.norm(vector_side2).item()
 
-        for vertex in vertices:
-            plt.plot(vertex[0], vertex[1], "o", color="blue")
-
-        # compute new_theta based on dot product of vector_side2 and x-axis
+        # Compute new_theta based on dot product of vector_side2 and x-axis
         new_theta = np.arctan2(-vector_side1[1], -vector_side1[0])
-        print(f"new_theta: {new_theta}")
-
-        # Ensure the angle is in the range [-pi, pi].
-        # new_theta = (new_theta + np.pi) % (2 * np.pi) - np.pi
 
         return Lobject(
-            center_x, center_y, width, [length_side1, length_side2], new_theta
+            center_x, center_y, width, (length_side1, length_side2), new_theta
         )
 
     def scale_about_center(self, width_scale: float, length_scale: float) -> Lobject:
@@ -515,12 +463,12 @@ class Lobject(Geom2D):
         new_width = self.width * width_scale
         # Create a new L-object with the new dimensions.
         return Lobject(
-            self.x, self.y, new_width, [new_length_side1, new_length_side2], self.theta
+            self.x, self.y, new_width, (new_length_side1, new_length_side2), self.theta
         )
 
     def plot(self, ax: plt.Axes, **kwargs: Any) -> None:
 
-        vertices = self.intermediate_vertices
+        vertices = self.vertices
 
         rectangle1_vertices = np.array(
             [
@@ -539,7 +487,7 @@ class Lobject(Geom2D):
             ]
         )
 
-        # create rectangle patches
+        # Create rectangle patches
         rect1_patch = plt.Polygon(rectangle1_vertices, closed=True, fill=True, **kwargs)
         rect2_patch = plt.Polygon(rectangle2_vertices, closed=True, fill=True, **kwargs)
         ax.add_patch(rect1_patch)

@@ -252,7 +252,7 @@ def test_lobject():
     ax.set_xlim((-5, 5))
     ax.set_ylim((-5, 5))
 
-    lobject = Lobject(x=3, y=4, width=0.5, lengths=[2, 3], theta=0.0)
+    lobject = Lobject(x=3, y=4, width=0.5, lengths=(2, 3), theta=0.0)
 
     assert lobject.x == 3
     assert lobject.y == 4
@@ -261,17 +261,10 @@ def test_lobject():
     assert lobject.lengths[1] == 3
     assert lobject.theta == 0.0
 
-    # lobject.plot(ax, color="purple", alpha=0.5)
+    lobject.plot(ax, color="purple", alpha=0.5)
 
     expected_vertices = np.array(
-        [
-            (3, 4),
-            (1, 4),
-            (1, 3.5),
-            (2.5, 3.5),
-            (2.5, 1),
-            (3, 1),
-        ]
+        [(3, 4), (1, 4), (1, 3.5), (2.5, 3.5), (2.5, 1), (3, 1), (3, 3.5), (2.5, 4)]
     )
 
     np.testing.assert_array_equal(lobject.vertices, expected_vertices)
