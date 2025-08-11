@@ -350,6 +350,20 @@ def test_rectangle_circle_intersection():
     assert geom2ds_intersect(circ3, rect2)
 
 
+def test_lobject_rectangle_intersection():
+    """Tests for Lobject intersection."""
+    lobject = Lobject(x=0, y=0, width=1, lengths=[1, 1], theta=0)
+    assert geom2ds_intersect(lobject, Rectangle(x=0, y=0, width=1, height=1, theta=0))
+    assert geom2ds_intersect(Rectangle(x=0, y=0, width=1, height=1, theta=0), lobject)
+
+
+def test_lobject_circle_intersection():
+    """Tests for Lobject intersection."""
+    lobject = Lobject(x=0, y=0, width=1, lengths=[1, 1], theta=0)
+    assert geom2ds_intersect(lobject, Circle(x=0, y=0, radius=1))
+    assert geom2ds_intersect(Circle(x=0, y=0, radius=1), lobject)
+
+
 def test_geom2ds_intersect():
     """Tests for geom2ds_intersect()."""
     with pytest.raises(NotImplementedError):
