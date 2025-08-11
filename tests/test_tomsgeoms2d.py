@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
-from tomsgeoms2d.structs import Circle, LineSegment, Rectangle, Triangle
+from tomsgeoms2d.structs import Circle, LineSegment, Lobject, Rectangle, Triangle
 from tomsgeoms2d.utils import geom2ds_intersect
 
 
@@ -244,6 +244,44 @@ def test_rectangle():
 
     # Uncomment for debugging.
     # plt.savefig("/tmp/rectangle_unit_test2.png")
+
+
+def test_lobject():
+    """Tests for Lobject."""
+    _, ax = plt.subplots(1, 1, figsize=(10, 10))
+    ax.set_xlim((-5, 5))
+    ax.set_ylim((-5, 5))
+
+    lobject = Lobject(x=3, y=4, width=0.5, lengths=[2, 3], theta=0.0)
+
+    assert lobject.x == 3
+    assert lobject.y == 4
+    assert lobject.width == 0.5
+    assert lobject.lengths[0] == 2
+    assert lobject.lengths[1] == 3
+    assert lobject.theta == 0.0
+
+    # lobject.plot(ax, color="purple", alpha=0.5)
+
+    expected_vertices = np.array(
+        [
+            (3, 4),
+            (1, 4),
+            (1, 3.5),
+            (2.5, 3.5),
+            (2.5, 1),
+            (3, 1),
+        ]
+    )
+
+    np.testing.assert_array_equal(lobject.vertices, expected_vertices)
+
+    lobject = lobject.rotate_about_point(lobject.x, lobject.y, np.pi / 6)
+
+    lobject.plot(ax, color="orange", alpha=0.5)
+
+    # # Uncomment for debugging.
+    # plt.savefig("/tmp/lobject_unit_test.png")
 
 
 def test_line_segment_circle_intersection():

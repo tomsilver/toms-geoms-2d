@@ -6,7 +6,7 @@ from typing import Tuple
 
 import numpy as np
 
-from tomsgeoms2d.structs import Circle, Geom2D, LineSegment, Rectangle
+from tomsgeoms2d.structs import Circle, Geom2D, LineSegment, Lobject, Rectangle
 
 
 def line_segments_intersect(seg1: LineSegment, seg2: LineSegment) -> bool:
@@ -130,6 +130,37 @@ def rectangle_intersects_circle(rect: Rectangle, circ: Circle) -> bool:
     return False
 
 
+def lobject_intersects_rectangle(lobj: Lobject, rect: Rectangle) -> bool:
+    """Checks if a Lobject intersects a rectangle."""
+    # Case 1: any vertex of the rectangle is inside the Lobject.
+    if any(lobj.contains_point(vx, vy) for vx, vy in rect.vertices):
+        return True
+    # Case 2: any vertex of the Lobject is inside the rectangle.
+    if any(rect.contains_point(vx, vy) for vx, vy in lobj.vertices):
+        return True
+    # Case 3: any edge of the Lobject intersects the rectangle.
+    for seg1 in lobj.line_segments:
+        for seg2 in rect.line_segments:
+            if line_segments_intersect(seg1, seg2):
+                return True
+    return False
+
+
+def lobject_intersects_circle(lobj1: Lobject, lobj2: Circle) -> bool:
+    """Checks if a Lobject intersects a circle."""
+    # Case 1: the circle's center is inside the Lobject.
+    if lobj1.contains_point(lobj2.x, lobj2.y):
+        return True
+    # Case 2: any vertex of the Lobject is inside the circle.
+    if any(lobj2.contains_point(vx, vy) for vx, vy in lobj1.vertices):
+        return True
+    # Case 3: any edge of the Lobject intersects the circle.
+    for seg1 in lobj1.line_segments:
+        if line_segment_intersects_circle(seg1, lobj2):
+            return True
+    return False
+
+
 def geom2ds_intersect(geom1: Geom2D, geom2: Geom2D) -> bool:
     """Check if two 2D bodies intersect."""
     if isinstance(geom1, LineSegment) and isinstance(geom2, LineSegment):
@@ -150,6 +181,14 @@ def geom2ds_intersect(geom1: Geom2D, geom2: Geom2D) -> bool:
         return rectangle_intersects_circle(geom2, geom1)
     if isinstance(geom1, Circle) and isinstance(geom2, Circle):
         return circles_intersect(geom1, geom2)
+    if isinstance(geom1, Lobject) and isinstance(geom2, Rectangle):
+        return lobject_intersects_rectangle(geom1, geom2)
+    if isinstance(geom1, Rectangle) and isinstance(geom2, Lobject):
+        return lobject_intersects_rectangle(geom2, geom1)
+    if isinstance(geom1, Lobject) and isinstance(geom2, Circle):
+        return lobject_intersects_circle(geom1, geom2)
+    if isinstance(geom1, Circle) and isinstance(geom2, Lobject):
+        return lobject_intersects_circle(geom2, geom1)
     raise NotImplementedError(
         "Intersection not implemented for geoms " f"{geom1} and {geom2}"
     )
