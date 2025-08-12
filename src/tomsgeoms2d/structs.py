@@ -470,7 +470,6 @@ class Lobject(Geom2D):
         )
 
     def plot(self, ax: plt.Axes, **kwargs: Any) -> None:
-
         vertices = self.vertices
 
         rectangle1_vertices = np.array(
