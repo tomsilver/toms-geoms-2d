@@ -212,7 +212,6 @@ def find_closest_point_line(
     closest_x = x1 + t * dx
     closest_y = y1 + t * dy
 
-    # minimum distance
     min_dist = np.linalg.norm(np.array((closest_x, closest_y)) - np.array(point)).item()
 
     return (closest_x, closest_y), min_dist
@@ -234,7 +233,6 @@ def find_closest_point_circle(
     closest_x = cx + radius * np.cos(angle)
     closest_y = cy + radius * np.sin(angle)
 
-    # minimum distance
     min_dist = np.linalg.norm(np.array((closest_x, closest_y)) - np.array(point)).item()
 
     return (closest_x, closest_y), min_dist
